@@ -1,0 +1,286 @@
+<?xml version="1.0"?>
+<robot name="diff_robot" xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:property name="body_width" value="0.3" /> <!-- x-len, y-width, z-height-->
+  <xacro:property name="body_len" value="0.4" />
+  <xacro:property name="body_height" value="0.2" />
+  <xacro:property name="wheeldiam" value="0.2" />
+  <xacro:property name="caster_wheeldiam" value="0.1" />
+  <xacro:property name="pi" value="3.1415" />
+  <xacro:property name="damping_value" value="1"/>
+  <xacro:property name="friction_value" value = "0.1"/>
+  <xacro:property name="castor_z" value = "${-1*body_height/2-caster_wheeldiam/2}"/> <!-- all defined values are for forward left casters -->
+  <xacro:property name="castor_y" value = "${body_width/2-.03}"/>
+  <xacro:property name="castor_x" value = "${body_len/2-.03}"/>
+
+
+  <material name="blue">
+    <color rgba="0 0 0.8 1"/>
+  </material>
+
+  <material name="black">
+    <color rgba="0 0 0 1"/>
+  </material>
+
+  <material name="white">
+    <color rgba="1 1 1 1"/>
+  </material>
+
+  <xacro:macro name="default_inertial" params="mass">
+    <inertial>
+      <mass value="${mass}" />
+      <origin rpy="0  0  0" xyz="0     0     -0.2"/>
+
+<inertia ixx="3.48098791" ixy="-0.02343362" ixz="0.04811861" iyy="5.19078888" iyz="-0.02384589" izz="6.88688694"/>
+
+    </inertial>
+  </xacro:macro>
+
+
+
+  <link name="base_link">
+    <xacro:default_inertial mass="85"/>
+
+    <visual>
+     <origin xyz="0 0 0.0" rpy="0 0 0"/>
+      <geometry>
+         <box size="${body_len} ${body_width} ${body_height}"/>
+      </geometry>
+      <material name="blue"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 0.0" rpy="0 0 0"/>
+      <geometry>
+         <box size="${body_len} ${body_width} ${body_height}"/>
+      </geometry>
+    </collision>
+    <!-- <xacro:default_inertial mass="10"/> -->
+    <collision name="caster_collision_fl">
+      <origin rpy="0  0  0" xyz="${castor_x}  ${castor_y}  ${castor_z}"/>
+      <geometry>
+        <sphere radius="${caster_wheeldiam/2}"/>
+      </geometry>
+      <surface>
+        <friction>
+          <ode>
+            <mu>0</mu>
+            <mu2>0</mu2>
+            <slip1>1.0</slip1>
+            <slip2>1.0</slip2>
+          </ode>
+        </friction>
+      </surface>
+    </collision>
+    <collision name="caster_collision_fr">
+      <origin rpy="0  0  0" xyz="${castor_x} ${castor_y*-1}  ${castor_z}"/>
+      <geometry>
+        <sphere radius="${caster_wheeldiam/2}"/>
+      </geometry>
+      <surface>
+        <friction>
+          <ode>
+            <mu>0</mu>
+            <mu2>0</mu2>
+            <slip1>1.0</slip1>
+            <slip2>1.0</slip2>
+          </ode>
+        </friction>
+      </surface>
+    </collision>
+    <collision name="caster_collision_bl">
+      <origin rpy="0  0  0" xyz="${castor_x*-1} ${castor_y}  ${castor_z}"/>
+      <geometry>
+        <sphere radius="${caster_wheeldiam/2}"/>
+      </geometry>
+      <surface>
+        <friction>
+          <ode>
+            <mu>0</mu>
+            <mu2>0</mu2>
+            <slip1>1.0</slip1>
+            <slip2>1.0</slip2>
+          </ode>
+        </friction>
+      </surface>
+    </collision>
+    <collision name="caster_collision_br">
+      <origin rpy="0  0  0" xyz="${castor_x*-1} ${castor_y*-1}  ${castor_z}"/>
+      <geometry>
+        <sphere radius="${caster_wheeldiam/2}"/>
+      </geometry>
+      <surface>
+        <friction>
+          <ode>
+            <mu>0</mu>
+            <mu2>0</mu2>
+            <slip1>1.0</slip1>
+            <slip2>1.0</slip2>
+          </ode>
+        </friction>
+      </surface>
+    </collision>
+     <visual name="caster_visual_fl">
+      <origin rpy="0  0  0" xyz="${castor_x} ${castor_y}  ${castor_z}"/>
+      <geometry>
+        <sphere radius="${caster_wheeldiam/2}"/>
+      </geometry>
+    </visual>
+    <visual name="caster_visual_fr">
+      <origin rpy="0  0  0" xyz="${castor_x} ${castor_y*-1}  ${castor_z}"/>
+      <geometry>
+        <sphere radius="${caster_wheeldiam/2}"/>
+      </geometry>
+    </visual>
+    <visual name="caster_visual_bl">
+      <origin rpy="0  0  0" xyz="${castor_x*-1} ${castor_y}  ${castor_z}"/>
+      <geometry>
+        <sphere radius="${caster_wheeldiam/2}"/>
+      </geometry>
+    </visual>
+    <visual name="caster_visual_br">
+      <origin rpy="0  0  0" xyz="${castor_x*-1} ${castor_y*-1}  ${castor_z}"/>
+      <geometry>
+        <sphere radius="${caster_wheeldiam/2}"/>
+      </geometry>
+    </visual>
+    </link>
+
+
+  <xacro:macro name="wheel" params="prefix reflect">
+
+    <link name="${prefix}_wheel">
+       <inertial>
+        <mass value="2.637" />
+        <origin xyz="0 0 0" />
+      <inertia  ixx="0.02467" ixy="0" ixz="0" iyy="0.04411" iyz="0" izz="0.02467" />
+      </inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="${pi/2} 0 0" />
+        <geometry>
+          <cylinder radius="${wheeldiam/2}" length="0.05"/>
+        </geometry>
+        <material name="black"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="${pi/2} 0 0" />
+        <geometry>
+          <cylinder radius="${wheeldiam/2}" length="0.05"/>
+        </geometry>
+
+   
+      </collision>
+      </link>
+     <joint name="${prefix}_wheel_joint" type="continuous">
+      <axis xyz="0 1 0" rpy="0 0 0" />
+      <parent link="base_link"/>
+      <child link="${prefix}_wheel"/>
+      <origin xyz="0 ${reflect*0.05+body_width/2*reflect} -${body_height/2+0.0001}" rpy="0 0 0"/>
+      <!-- <origin xyz="0 0 0" rpy="0 0 0"/> -->
+
+    </joint>
+
+    <!-- This block provides the simulator (Gazebo) with information on a few additional
+    physical properties. See http://gazebosim.org/tutorials/?tut=ros_urdf for more-->
+    <gazebo reference="${prefix}_wheel">
+      <mu1 value="1.0"/>
+      <mu2 value="1.0"/>
+      <kp value="10000000.0" />
+      <kd value="1.0" />
+      <material>Gazebo/Grey</material>
+    </gazebo>
+
+    <!-- This block connects the wheel joint to an actuator (motor), which informs both
+    simulation and visualization of the robot -->
+    <transmission name="${prefix}_wheel_trans">
+      <type>transmission_interface/SimpleTransmission</type>
+      <actuator name="${prefix}_wheel_motor">
+        <mechanicalReduction>1</mechanicalReduction>
+      </actuator>
+      <joint name="${prefix}_wheel_joint">
+        <hardwareInterface>VelocityJointInterface</hardwareInterface>
+      </joint>
+    </transmission>
+
+  </xacro:macro>
+  <xacro:wheel prefix="left" reflect="1"/>
+  <xacro:wheel prefix="right" reflect="-1"/> 
+  <link name="laser">
+    <inertial>
+      <mass value="0"/>
+      <origin rpy="0  0  0" xyz="0  0  0"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <collision name="collision_laser">
+      <origin rpy="0  0  0" xyz="0  0  0"/>
+      <geometry>
+        <cylinder length="0.04" radius="0.04"/>
+      </geometry>
+    </collision>
+    <visual name="visual_laser">
+      <origin rpy="0  0  0" xyz="0  0  0"/>
+      <geometry>
+        <cylinder length="0.04" radius="0.04"/>
+      </geometry>
+    </visual>
+  </link>
+
+   <joint name="laser_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="laser"/>
+    <origin rpy="0  0  0" xyz="${body_len/2+.05}  0  ${body_height/2-0.1}"/>
+    <axis xyz="0  0  0"/>
+    <limit effort="0" lower="0" upper="0" velocity="0"/>
+  </joint>
+  <!-- Gazebo plugin for ROS Control -->
+  <gazebo>
+    <plugin name="differential_drive_controller" filename="libgazebo_ros_diff_drive.so">
+      <legacyMode>false</legacyMode>
+      <alwaysOn>true</alwaysOn>
+      <updateRate>50</updateRate>
+      <leftJoint>left_wheel_joint</leftJoint>
+      <rightJoint>right_wheel_joint</rightJoint>
+      <wheelSeparation>0.4</wheelSeparation>
+      <wheelDiameter>${wheeldiam}</wheelDiameter>
+      <wheelTorque>10</wheelTorque>
+      <commandTopic>cmd_vel</commandTopic>
+      <odometryTopic>odom</odometryTopic>
+      <odometryFrame>odom</odometryFrame>
+      <robotBaseFrame>base_link</robotBaseFrame>
+    </plugin>
+  </gazebo>
+
+    <gazebo reference="laser">
+    <sensor type="ray" name="laser">
+      <pose>0 0 0 0 0 0</pose>
+      <visualize>true</visualize>
+      <update_rate>40</update_rate>
+      <ray>
+        <scan>
+          <horizontal>
+            <samples>720</samples>
+            <resolution>1</resolution>
+            <min_angle>-1.75</min_angle>
+            <max_angle>1.75</max_angle>
+          </horizontal>
+        </scan>
+        <range>
+          <min>0.10</min>
+          <max>20.0</max>
+          <resolution>0.01</resolution>
+        </range>
+<!--         <noise>
+          <type>gaussian</type>
+               <mean>0.0</mean>
+               <stddev>0.01</stddev>
+        </noise> -->
+           </ray>
+           <plugin name="gazebo_ros_laser_controller" filename="libgazebo_ros_laser.so">
+            <topicName>/scan</topicName>
+            <frameName>laser</frameName>
+          </plugin>
+        </sensor>
+      </gazebo>
+
+
+</robot>
